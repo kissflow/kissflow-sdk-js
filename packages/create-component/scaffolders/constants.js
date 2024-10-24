@@ -7,13 +7,16 @@ const renames = {
     _npmrc: '.npmrc',
     '_eslintrc.cjs': '.eslintrc.cjs',
     _gitkeep: '.gitkeep',
+    _prettierrc: '.prettierrc',
 }
 
+// Update the _prettierrc file as well if you
+// are updating this config...
 const prettierConfig = {
-    singleQuote: true,
     trailingComma: 'es5',
     tabWidth: 4,
     semi: false,
+    singleQuote: true,
 }
 
 const PROJECT_TARGETS = {
@@ -21,4 +24,6 @@ const PROJECT_TARGETS = {
     PAGE: 'page',
 }
 
-export { renames, prettierConfig, PROJECT_TARGETS }
+const BINARY_FILE_EXTENSIONS = ['png', 'jpg', 'jpeg']
+
+export { renames, prettierConfig, PROJECT_TARGETS, BINARY_FILE_EXTENSIONS }

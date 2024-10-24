@@ -82,11 +82,6 @@ const FILE_MAP = {
     [PLATFORMS.PWA]: {
         [FORM_FIELD_COMPONENTS.FORM_FIELD]: {
             moduleFolderPath: `src/${PLATFORMS.PWA}/`,
-            isMandatory: true,
-            fileExtension: 'jsx',
-        },
-        [FORM_FIELD_COMPONENTS.CARD]: {
-            moduleFolderPath: `src/${PLATFORMS.PWA}/`,
             isMandatory: false,
             fileExtension: 'jsx',
         },

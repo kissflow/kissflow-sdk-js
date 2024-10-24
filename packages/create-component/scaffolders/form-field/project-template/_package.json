@@ -6,8 +6,8 @@
     "scripts": {
         "dev": "form-field-scripts dev",
         "build": "form-field-scripts build",
-        "zip": "zip -r custom-form-field.zip ./dist",
-        "unzip": "rm -rf ./custom-form-field && unzip custom-form-field.zip -d ./custom-form-field"
+        "zip": "rm -rf ./<%= projectName %>.zip ./dist && npm run build && cd ./dist && zip -q -r ../<%= projectName %>.zip . && rm -rf ../dist",
+        "unzip": "rm -rf ./<%= projectName %> && unzip <%= projectName %>.zip -d ./<%= projectName %>"
     },
     "type": "module",
     "author": "",
@@ -33,6 +33,14 @@
                 {
                     "name": "document",
                     "message": "Don't use browser's `document` object."
+                },
+                {
+                    "name": "fetch",
+                    "message": "Using browser's fetch api is not allowed."
+                },
+                {
+                    "name": "XMLHttpRequest",
+                    "message": "Using browser's XMLHttpRequest is not allowed."
                 }
             ]
         }

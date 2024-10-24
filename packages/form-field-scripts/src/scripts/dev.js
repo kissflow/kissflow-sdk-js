@@ -1,30 +1,79 @@
 import webpack from 'webpack'
-import WebpackDevServer from 'webpack-dev-server'
 import webpackConfig from '../config/webpack.config.js'
-import webpackDevServerConfig from '../config/webpackDevServer.config.js'
 import paths from '../paths.js'
 import chokidar from 'chokidar'
 import chalk from 'chalk'
+import express from 'express'
+import { WebSocketServer } from 'ws'
+import http from 'http'
+import cors from 'cors'
 
-const runServer = async () => {
-    const compiler = webpack(
-        Object.assign(webpackConfig, { mode: 'development' })
-    )
-    const server = new WebpackDevServer(webpackDevServerConfig, compiler)
-    await server.start()
-    const watcher = chokidar.watch(
+const port = 9090
+
+const runDevBuild = async () => {
+    return new Promise((resolve, reject) => {
+        const compiler = webpack(
+            Object.assign(webpackConfig, {
+                mode: 'development',
+                output: {
+                    path: paths.devDist,
+                },
+            })
+        )
+        compiler.run((err, stats) => {
+            if (err) {
+                reject(err)
+            }
+            resolve(stats)
+        })
+    })
+}
+
+const startDevServer = async () => {
+    const app = express()
+    app.use(cors())
+    app.use(express.static(paths.devDist))
+    const server = http.createServer(app)
+    const wss = new WebSocketServer({ server })
+
+    const clients = new Set()
+
+    wss.on('connection', (ws) => {
+        clients.add(ws)
+        ws.on('close', () => {
+            clients.delete(ws)
+        })
+    })
+
+    await runDevBuild()
+
+    server.listen(port, () => {})
+
+    const sourceWatcher = chokidar.watch([paths.appSrc], {
+        persistent: true,
+    })
+
+    sourceWatcher.on('change', async (path) => {
+        await runDevBuild()
+        for (const client of clients) {
+            client.send('reload')
+        }
+    })
+
+    const killServer = async () => {
+        server.close(() => {
+            process.exit(0)
+        })
+    }
+
+    const configWatcher = chokidar.watch(
         [paths.formFieldProjectConfig, paths.projectPackageJson],
         {
             persistent: true,
         }
     )
 
-    const killServer = async () => {
-        await server.stop()
-        process.exit(0)
-    }
-
-    watcher
+    configWatcher
         .on('change', async (path) => {
             console.log()
             console.log(
@@ -47,4 +96,4 @@ const runServer = async () => {
         })
 }
 
-await runServer()
+await startDevServer()

@@ -17,13 +17,14 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 const { dependencies: deps } = getAppPackageJson()
-const moduleMap = await getModuleMap()
+const moduleMap = getModuleMap()
 
 function getRelativePath(filePath) {
     return path.relative(paths.appPath, filePath)
 }
 
 export default {
+    devtool: 'eval-source-map',
     context: paths.appRoot,
     entry: {},
     experiments: {
@@ -54,7 +55,13 @@ export default {
                 test: /\.css$/,
                 use: [
                     require.resolve('style-loader'),
-                    require.resolve('css-loader'),
+                    {
+                        loader: require.resolve('css-loader'),
+                        options: {
+                            modules: true, // Enables CSS Modules
+                            // localIdentName: '[name]__[local]___[hash:base64:5]', // Optional, for custom class names
+                        },
+                    },
                 ],
             },
         ],
@@ -73,9 +80,7 @@ export default {
                 type: 'module',
             },
             filename: 'moduleEntry.js',
-            exposes: {
-                ...moduleMap,
-            },
+            exposes: moduleMap,
             shared: {
                 react: {
                     requiredVersion: deps.react,
